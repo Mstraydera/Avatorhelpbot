@@ -9,7 +9,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
 
 # ---------------- CONFIG ----------------
-TOKEN = "YOUR_BOT_TOKEN_HERE"  # <- вставь сюда токен от BotFather
+TOKEN = "8244139819:AAFYeGiH5H0-W3A1RSeWY6iozOdfYBxiw6A"  # <- вставь сюда токен от BotFather
 CHANNELS = ["MysliTreydera", "+T8GFH6W_LB04Yzgy"]  # username публичного и приватного канала
 REF_BONUS = 21  # рубли за приглашённого
 DB_FILENAME = "data.db"
