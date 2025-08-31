@@ -4,7 +4,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 
 # ---------------- CONFIG ----------------
-TOKEN = "8244139819:AAFYeGiH5H0-W3A1RSeWY6iozOdfYBxiw6A"
+TOKEN = "8244139819:AAFYeGiH5H0-W3A1RSeWY6iozOdfYBxiw6A"  # вставь токен от BotFather
 CHANNELS = ["MysliTreydera", "+T8GFH6W_LB04Yzgy"]
 REF_BONUS = 21
 DB_FILENAME = "data.db"
