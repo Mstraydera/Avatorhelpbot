@@ -1,21 +1,17 @@
 import sqlite3
 from datetime import datetime
 from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
-from aiohttp import web
+from aiogram.utils import executor
 
 # ---------------- CONFIG ----------------
 TOKEN = "8244139819:AAFYeGiH5H0-W3A1RSeWY6iozOdfYBxiw6A"
 CHANNELS = ["MysliTreydera", "+T8GFH6W_LB04Yzgy"]
 REF_BONUS = 21
 DB_FILENAME = "data.db"
-WEBHOOK_PATH = "/webhook"
-WEBAPP_HOST = "0.0.0.0"
-WEBAPP_PORT = 3000
 # ----------------------------------------
 
 bot = Bot(token=TOKEN)
-dp = Dispatcher()
+dp = Dispatcher(bot)
 
 # ---------- Database ----------
 def init_db():
@@ -74,14 +70,13 @@ def main_menu():
     return kb
 
 # ---------- Handlers ----------
-@dp.message(Command("start"))
+@dp.message_handler(commands=['start'])
 async def cmd_start(message: types.Message):
     tg_id = message.from_user.id
     username = message.from_user.username or message.from_user.first_name
     if not get_user(tg_id):
         create_user(tg_id, username)
 
-    # Проверка подписки
     subscribed = await is_subscribed_all_channels(tg_id)
     if not subscribed:
         ch_text = "\n".join([f"https://t.me/{c}" for c in CHANNELS])
@@ -91,7 +86,7 @@ async def cmd_start(message: types.Message):
 
     await message.answer("Доступ открыт.", reply_markup=main_menu())
 
-@dp.message(Command("check"))
+@dp.message_handler(commands=['check'])
 async def cmd_check(message: types.Message):
     uid = message.from_user.id
     if await is_subscribed_all_channels(uid):
@@ -99,13 +94,13 @@ async def cmd_check(message: types.Message):
     else:
         await message.answer("Вы всё ещё не подписаны на все каналы.")
 
-@dp.message(lambda m: m.text == "Заработать")
+@dp.message_handler(lambda m: m.text == "Заработать")
 async def cmd_earn(message: types.Message):
     uid = message.from_user.id
     ref_link = f"https://t.me/{(await bot.get_me()).username}?start={uid}"
     await message.answer(f"Реферальная ссылка:\n{ref_link}\nБонус за реферала: {REF_BONUS}₽")
 
-@dp.message(lambda m: m.text == "Баланс")
+@dp.message_handler(lambda m: m.text == "Баланс")
 async def cmd_balance(message: types.Message):
     uid = message.from_user.id
     user = get_user(uid)
@@ -114,25 +109,15 @@ async def cmd_balance(message: types.Message):
     else:
         await message.answer("Сначала нажмите /start")
 
-@dp.message(lambda m: m.text == "Рефераль")
+@dp.message_handler(lambda m: m.text == "Рефераль")
 async def cmd_referral(message: types.Message):
     uid = message.from_user.id
     user = get_user(uid)
     if user:
         await message.answer(f"Рефералов: {user[4]}\nБаланс: {user[3]}₽")
 
-# ---------- Webhook ----------
-async def handle(request):
-    data = await request.json()
-    update = types.Update(**data)
-    await dp.process_update(update)
-    return web.Response(text="ok")
-
-app = web.Application()
-app.router.add_post(WEBHOOK_PATH, handle)
-
+# ---------- Run Bot ----------
 if __name__ == "__main__":
-    import asyncio
     init_db()
-    print("Webhook bot started")
-    web.run_app(app, host=WEBAPP_HOST, port=WEBAPP_PORT)
+    print("Bot started")
+    executor.start_polling(dp, skip_updates=True)
